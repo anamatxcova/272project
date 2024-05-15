@@ -15,8 +15,8 @@
 
     // Function to refresh the page in 3 seconds
     function refresh_page() {
-        echo("<br>Page will automatically refresh after 3 seconds");
-        header("refresh: 3");
+        echo("<br>Page will automatically refresh after 5 seconds");
+        header("refresh: 5");
     }
 
     function redirect($url) {
@@ -30,8 +30,8 @@
     }
 
     // Connect to MySQL
-    // $conn = new mysqli("localhost", "root", "", "");
-    $conn = new mysqli("localhost", "wxldvwmy_cmpe272team", "cmpe272team", "wxldvwmy_marketplaceDB");
+    $conn = new mysqli("localhost", "root", "", "project");
+    // $conn = new mysqli("localhost", "wxldvwmy_cmpe272team", "cmpe272team", "wxldvwmy_marketplaceDB");
     if ($conn->connect_error)
         die(error_Msg());
     
@@ -49,17 +49,17 @@
         { 
             die("Username or Password is empty");
         } else {
-            $un = sanitize($_POST['username']);
+            $un = sanitize($conn, $_POST['username']);
             $query = "SELECT * FROM users WHERE username = '$un'";
             $result = $conn->query($query);
 
             $row = $result->fetch_array(MYSQLI_NUM);
 
-            if ($un == $row[1] && password_verify(sanitize($_POST['password']), $row[2]))  // Signed In
+            if ($un == $row[1] && password_verify(sanitize($conn, $_POST['password']), $row[2]))  // Signed In
             {
                 setcookie('username', $un, time() + 1500);
                 echo("<br>Successfully logged in");
-                redirect($url);
+                redirect("https://hoaiannguyens.com/");
             }
             else die(error_Msg("Wrong Credentials"));
         }
@@ -70,10 +70,6 @@
             <input type="hidden" name="unameL" value="$un">
             <input type="submit" value="Log out" name ="logOut"></form>
             _ENDd;
-        else 
-        {
-                die("Wrong Credentials");
-        }
     }
     else if (isset($_POST['logOut'])) // Log out
     {
@@ -88,7 +84,8 @@
     }
     else if (isset($_COOKIE['username'])) // User already logged in
     {
-        $un = sanitize($_COOKIE['username']);
+        redirect("https://hoaiannguyens.com/");
+        $un = sanitize($conn, $_COOKIE['username']);
     }
     else
     {
