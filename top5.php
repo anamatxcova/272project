@@ -48,7 +48,14 @@ echo("<h2>TOP 5 PRODUCTS/SERVICES BY INDIVIDUAL VENDOR BASED ON AVERAGE RATING</
 
 
 
-$sql = "SELECT t1.vendorName, t1.productName, t1.avg_rating FROM ( SELECT vendorName, productName, AVG(rating) AS avg_rating FROM review GROUP BY vendorName, productName ) t1 WHERE ( SELECT COUNT(*) FROM ( SELECT vendorName, productName, AVG(rating) AS avg_rating FROM review GROUP BY vendorName, productName ) t2 WHERE t2.vendorName = t1.vendorName AND t2.avg_rating > t1.avg_rating ) < 5 ORDER BY t1.vendorName, t1.avg_rating DESC";
+$sql = "SELECT t1.vendorName, t1.productName, t1.avg_rating FROM 
+( SELECT vendorName, productName, AVG(rating) AS avg_rating FROM 
+review GROUP BY vendorName, productName ) t1 WHERE 
+( SELECT COUNT(*) FROM ( SELECT vendorName, productName, 
+AVG(rating) AS avg_rating FROM review GROUP BY vendorName, 
+productName ) t2 WHERE t2.vendorName = t1.vendorName AND 
+t2.avg_rating > t1.avg_rating ) < 5 ORDER BY t1.vendorName, 
+t1.avg_rating DESC";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
