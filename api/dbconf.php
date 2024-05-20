@@ -1,6 +1,6 @@
 <?php
 $servername = "localhost";
-$database = "u574051743_CMPE272";
-$username = "u574051743_trada";
-$password = "Ccnntsnmnntncr210";
+$database = "wxldvwmy_marketplaceDB";
+$username = "wxldvwmy_cmpe272team";
+$password = "cmpe272team";
  ?>
