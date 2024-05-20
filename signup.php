@@ -28,8 +28,8 @@
     // Sign-up
 
     // Connect to MySQL
-    $conn = new mysqli("localhost", "root", "", "project");
-    // $conn = new mysqli("localhost", "wxldvwmy_cmpe272team", "cmpe272team", "wxldvwmy_marketplaceDB");
+    // $conn = new mysqli("localhost", "root", "", "project");
+    $conn = new mysqli("marketplace272.space", "wxldvwmy_cmpe272team", "cmpe272team", "wxldvwmy_marketplaceDB");
     if ($conn->connect_error)
         die(error_Msg());
 
@@ -57,10 +57,10 @@
             }
             else
             {
-                $pw = password_hash($_POST['password'], PASSWORD_DEFAULT);
+                $pw = $_POST['password'];
                 $query = "INSERT INTO users VALUES(NULL, '$un', '$pw')";
                 $result = $conn->query($query);
-                if (!$result) 
+                if (!$result)
                     echo error_Msg();
                 else 
                     echo '<span style="color: green">'."Successfully signed up<br><br>".'</span>'; 
@@ -75,7 +75,22 @@
         <html><head><title>Users</title>
             <style>
             .form {
-            border:1px solid #999999; font: normal 14px helvetica; color: #444444;
+            border:1px solid #999999; font: normal 20px helvetica; color: #444444;
+            display: flex; padding: 20px;
+            }
+            body, html {
+                height: 100%;
+                margin: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }   
+            .container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+                width: 100%;
             }
             </style>
         </head>

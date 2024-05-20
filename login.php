@@ -30,8 +30,8 @@
     }
 
     // Connect to MySQL
-    $conn = new mysqli("localhost", "root", "", "project");
-    // $conn = new mysqli("localhost", "wxldvwmy_cmpe272team", "cmpe272team", "wxldvwmy_marketplaceDB");
+    // $conn = new mysqli("localhost", "root", "", "project");
+    $conn = new mysqli("marketplace272.space", "wxldvwmy_cmpe272team", "cmpe272team", "wxldvwmy_marketplaceDB");
     if ($conn->connect_error)
         die(error_Msg());
     
@@ -50,51 +50,80 @@
             die("Username or Password is empty");
         } else {
             $un = sanitize($conn, $_POST['username']);
+            $pw = sanitize($conn, $_POST['password']);
             $query = "SELECT * FROM users WHERE username = '$un'";
             $result = $conn->query($query);
 
             $row = $result->fetch_array(MYSQLI_NUM);
-
-            if ($un == $row[1] && password_verify(sanitize($conn, $_POST['password']), $row[2]))  // Signed In
+            if ($un == $row[1] && $pw == $row[2])  // Signed In
             {
-                setcookie('username', $un, time() + 1500);
+                $info = [];
+                setcookie('username', $un, time() + 86400);
+                setcookie('visited', json_encode($info), time()+86400);
                 echo("<br>Successfully logged in");
-                redirect("https://hoaiannguyens.com/");
+                redirect("http://localhost/272project/home.php");
             }
             else die(error_Msg("Wrong Credentials"));
         }
-
-           echo <<<_ENDd
-
-            <form action="" method="post">
-            <input type="hidden" name="unameL" value="$un">
-            <input type="submit" value="Log out" name ="logOut"></form>
-            _ENDd;
     }
     else if (isset($_POST['logOut'])) // Log out
     {
         // Destroy cookies
-        unset($_COOKIE['name']);
-        setcookie('name', '', time() - 3600);
         unset($_COOKIE['username']);
-        setcookie('username', '', time() - 3600);
+        setcookie('username', '', time() - 86400);
         echo "Logged Out";
         echo("<br>Page will automatically refreshed");
         header("refresh: 1");
     }
     else if (isset($_COOKIE['username'])) // User already logged in
     {
-        redirect("https://hoaiannguyens.com/");
+        redirect("http://localhost/272project/home.php");
         $un = sanitize($conn, $_COOKIE['username']);
     }
     else
     {
         echo <<<_END1
-        <form action="" method="post"><form><pre>
-        Username   <input size = "30" style = "width: 220px" type="text" name="username"> <br>
-        Password <input  size = "30" style = "width: 220px" type="password" name="password"> <br>
-        <input type="submit" value="Sign In" name="signIn">
-        </pre></form>
+
+        <!DOCTYPE html>
+        <html><head><title>Log In</title>
+            <style>
+            .form {
+            border:1px solid #999999; font: normal 20px helvetica; color: #444444;
+            display: flex; padding: 20px; font-size: 10px;
+            }
+            body, html {
+                height: 100%;
+                margin: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 1.5em;
+            }   
+            .container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+                width: 100%;
+            }
+            </style>
+        </head>
+        <body>
+        <div class="container">
+            <table border="0" cellpadding="2" cellspacing="5" bgcolor="#eeeeee">
+            <th colspan="2" align="center">Sign In</th>
+            <form action="" method="post"><form>
+            <tr><td>Username</td>
+            <td><input type="text" maxlength="32" name="username"></td></tr>
+            <tr><td>Password</td>
+            <td><input type="password" maxlength="64" name="password"></td></tr>
+            <tr><td colspan="2" align="center"><input type="submit"
+            value="Sign In" name="signIn"></td></tr>
+            </form>
+            </table>
+            </div>
+            </br></br></br>
+        </body></html>
 
         _END1;
     }

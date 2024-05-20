@@ -1,3 +1,42 @@
+<!-- Have to deal with cookies before html -->
+<?php
+// Check for product click
+if (isset($_GET['name'])) {
+    echo "clicked";
+    $product_name = $_GET['name'];
+
+    // Retrieve the visited products from cookies or initialize an empty array
+    $visited = [];
+    if (isset($_COOKIE['visited'])) {
+        $visited = json_decode($_COOKIE['visited'], true);
+    }
+
+    // Add the current product to the list of visited products if not already in it
+    if (!in_array($product_name, $visited)) {
+        $visited[] = $product_name;
+    }
+
+    // Save the updated list back to the cookie
+    setcookie('visited', json_encode($visited), time()+86400, "/");
+} else {
+    // If no product is selected, initialize the variable to avoid undefined variable errors
+    $product_name = null;
+    $visited_products = isset($_COOKIE['visited']) ? json_decode($_COOKIE['visited'], true) : [];
+}
+
+if (isset($_POST['logOut'])) // Log out
+{
+    // Destroy cookies
+    unset($_COOKIE['username']);
+    setcookie('username', '', time() - 86400);
+    setcookie('visited', '', time() - 3600, '/');
+    echo "Logged Out";
+    echo("<br>Page will automatically refreshed");
+    redirect("http://localhost/272project/home.php");
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -149,7 +188,9 @@
             <li><a href="login.php">Login</a></li>
             <li><a href="signup.php">Sign Up</a></li>
             <li><a href="products.php">Products</a></li>
-            <li><button class="logout-btn">Logout</button></li>
+            <form method="post" action="">
+            <li><button type="submit" name="logOut" class="logout-btn">Logout</button></li>
+            </form>
         </ul>
     </div>
 </nav>
@@ -170,9 +211,15 @@
         die(error_Msg());
     }
 
+    function redirect($url) {
+        header('Location: '.$url);
+        die();
+    }
+
     $sql = "SELECT name, vendorName, link FROM product LIMIT 40"; // assuming 'product' is the table name
     $result = $conn->query($sql);
     $counter = 1; // Counter for generating unique IDs
+
 
     if ($result->num_rows > 0) {
         // output data of each row
@@ -180,20 +227,47 @@
             echo "<div class='product' id='product_" . $counter . "'>";
             echo "<h3>" . $row["name"] . "</h3>";
             echo "<p>Vendor: " . $row["vendorName"] . "</p>";
-            echo "<p><a href='" . $row["link"] . "'>View Details</a></p>";
+            echo "<p><a href='" . $row["link"] . "?name=" . urlencode($row['name']) . " '>View Details</a></p>";
             echo "</div>";
             $counter++;
         }
     } else {
         echo "<p>No products found</p>";
     }
-
+    // Add product to visited when clicked
+    if (isset($_GET['name'])) {
+        $product_name = $_GET['name'];
+    
+        // Retrieve the visited products from cookies or initialize an empty array
+        $visited = [];
+        if (isset($_COOKIE['visited'])) {
+            $visited = json_decode($_COOKIE['visited'], true);
+        }
+    
+        // Add the current product to the list of visited products
+        if (!in_array($product_name, $visited)) {
+            $visited[] = $product_name;
+        }
+    
+        // Save the updated list back to the cookie
+        setcookie('visited', json_encode($visited), time()+86400);
+    } 
     $conn->close();
 
     function error_Msg() {
         return "Connection failed: " . $conn->connect_error;
     }
     ?>
+
+    
+    <?php if (!empty($visited)): ?>
+        <h2>Visited Products</h2>
+        <ul>
+            <?php foreach ($visited as $product): ?>
+                <li><?php echo htmlspecialchars($product); ?></li>
+            <?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
 </div>
 
 </body>
